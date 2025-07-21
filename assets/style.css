@@ -1,0 +1,86 @@
+.boxy-style {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    height: 100vh; 
+    font-family:sans-serif;
+}
+.box{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    width: 500px;
+    height: 550px;
+
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.box-2{
+    display: flex;
+    border: 1px solid black;
+    width: 200px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.box-input {
+    margin-top: 15px; 
+}
+
+.centered-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0
+}
+.button-nav {
+    margin-left: 400px;
+}
+
+#jumbotron{
+    color: white;
+    text-shadow: black 1px 1px;
+    font-family: sans-serif ;
+}
+.jumbotron-bg {
+    background-image: url("../assets/image/doctor.jpg");
+    height: 600px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5);
+}
+
+.harga{
+    font-size: 13pt;
+    color: rgb(97, 148, 249);
+    font-family: monospace;
+}
+
+.cardimg{
+    height: 200px;
+}
+
+.cardimg img{
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.card-body{
+    background-color: rgb(237, 247, 250);
+}
+
