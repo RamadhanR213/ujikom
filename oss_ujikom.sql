@@ -324,3 +324,19 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+CREATE TABLE `outlet` (
+  `id_outlet` INT(11) NOT NULL AUTO_INCREMENT,
+  `nama_outlet` VARCHAR(255) NOT NULL,
+  `alamat` TEXT NOT NULL,
+  `gambar` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id_outlet`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `outlet` (`nama_outlet`, `alamat`, `gambar`) VALUES
+('Surabaya', 'Jl. Raya Darmo No. 123', 'surabaya.jpg'),
+('Kediri', 'Jl. Dhoho No. 45', 'kediri.jpg'),
+('Sidoarjo', 'Jl. Gajah Mada No. 67', 'sidoarjo.jpg'),
+('Jombang', 'Jl. Wahid Hasyim No. 89', 'jombang.jpg'),
+('Mojokerto', 'Jl. Mojopahit No. 101', 'mojokerto.jpg'),
+('Gresik', 'Jl. Veteran No. 12', 'gresik.jpg');
