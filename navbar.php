@@ -1,11 +1,11 @@
 <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <div class="container-fluid">
         <img
-            src="assets/image/icon-healthier.png"
+            src="assets/image/profile.jpg"
             alt="Logo"
             style="width: 50px; height: 50px; margin: 10px"
             class="d-inline-block align-text-top" />
-        <a class="navbar-brand mx-2" href="index.php">Health Shop</a>
+        <a class="navbar-brand mx-2" href="index.php">MedShop</a>
 
         <button
             class="navbar-toggler"
@@ -31,7 +31,7 @@
                     <a class="nav-link active" aria-current="page" href="cart.php?p=0">Keranjang</a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link" href="https://wa.me/+6281240277417">Kontak Kami</a>
+                <a class="nav-link" href="kontak.php">Kontak Kami</a>
                 </li>
             </ul>
             <ul class="navbar-nav mx-4">

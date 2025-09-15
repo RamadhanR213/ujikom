@@ -2,241 +2,200 @@
 session_start();
 include 'koneksi.php';
 
+// Cek apakah user sudah login
 if (!isset($_SESSION['log'])) {
-    // Jika belum login, arahkan ke halaman login
     header('Location: login.php');
-    exit; // Pastikan untuk menghentikan eksekusi skrip setelah redirect
+    exit;
 }
 
+$user_id = $_SESSION['id'];
+
+// Tambah produk ke cart
 if (!empty($_GET['p'])) {
-    $id = $_GET['p'];
-} else {
-    $id = 0;
+    $product_id = intval($_GET['p']);
+    if ($product_id > 0) {
+        // Cek apakah produk sudah ada di cart user
+        $cekCart = mysqli_query($conn, "SELECT * FROM cart WHERE user_id='$user_id' AND product_id='$product_id'");
+        if (mysqli_num_rows($cekCart) > 0) {
+            // Jika ada → update quantity
+            mysqli_query($conn, "UPDATE cart SET quantity = quantity + 1 WHERE user_id='$user_id' AND product_id='$product_id'");
+        } else {
+            // Jika belum ada → insert baru
+            mysqli_query($conn, "INSERT INTO cart (user_id, product_id, quantity) VALUES ('$user_id','$product_id',1)");
+        }
+    }
 }
 
-if (isset($_SESSION['cart'][$id])) {
-} else {
-    $_SESSION['cart'][$id] = 1;
-}
+// Ambil data user
+$queryListUser = mysqli_query($conn, "SELECT * from pendaftar where id='$user_id'");
 
-// echo "<pre>";
-// print_r($_SESSION);
-// echo "</pre>";
-
-$queryListUser = mysqli_query($conn, "SELECT * from pendaftar where id=$_SESSION[id]");
-
-
+// Ambil keranjang user dari DB
+$queryCart = mysqli_query($conn, "SELECT c.id, c.quantity, p.nama, p.harga, p.id as produk_id
+                                  FROM cart c
+                                  JOIN produk p ON c.product_id = p.id
+                                  WHERE c.user_id='$user_id'");
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Health Shop</title>
+    <title>Keranjang - MedShop</title>
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
     <link rel="stylesheet" href="assets/style.css" />
 </head>
-
+<style>
+   .navbar {
+      background: linear-gradient(90deg, #0d6efd, #084298);
+    }
+    .navbar-brand, .nav-link, .btn {
+      font-weight: 500;
+    }
+  </style>
 <body>
-    <section id="navbar">
-        <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-            <div class="container-fluid">
-                <img
-                    src="assets/image/icon-healthier.png"
-                    alt="Logo"
-                    style="width: 50px; height: 50px; margin: 10px"
-                    class="d-inline-block align-text-top" />
-                <a class="navbar-brand mx-2" href="index.php">Health Shop</a>
+   <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <img src="assets/image/profile.jpg" alt="Logo" style="width: 50px; height: 50px;" class="d-inline-block align-text-top" />
+      <a class="navbar-brand mx-2" href="index.php">MedShop</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="index.php">Beranda</a></li>
+          <li class="nav-item"><a class="nav-link" href="belanja.php">Belanja</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#">Keranjang</a></li>
+          <li class="nav-item"><a class="nav-link" href="kontak.php">Kontak Kami</a></li>
+        </ul>
+        <ul class="navbar-nav mx-4">
+          <?php
+          if (!isset($_SESSION['log'])) {
+            echo '
+              <li><a href="register.php" class="btn btn-light mx-2">Register</a></li>
+              <li><a href="login.php" class="btn btn-outline-light">Login</a></li>
+            ';
+          } else {
+            if ($_SESSION['role'] == 'member') {
+              echo '
+                <li><a href="account.php" class="btn btn-light mx-2">Account</a></li>
+                <li><a href="logout.php" class="btn btn-outline-light">Logout</a></li>
+              ';
+            } else {
+              echo '
+                <li><a href="admin" class="btn btn-light mx-3">Admin</a></li>
+                <li><a href="logout.php" class="btn btn-outline-light">Logout</a></li>
+              ';
+            }
+          }
+          ?>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
-                    aria-controls="navbarNav"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div
-                    class="collapse navbar-collapse justify-content-end mr-3"
-                    id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php">Beranda</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="belanja.php">Belanja</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="cart.php?p=0">Keranjang</a>
-                        </li>
-                        <li class="nav-item">
-                        <a class="nav-link" href="https://wa.me/+6281240277417">Kontak Kami</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav mx-4">
+    <div class="container py-5">
+        <div class="card shadow p-4">
+            <h4 class="text-center mb-4">Keranjang Belanja</h4>
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Jumlah</th>
+                        <th>Sub Total</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $no = 1; 
+                    $totalharga = 0;
+                    while ($data = mysqli_fetch_assoc($queryCart)) {
+                        $subharga = $data['harga'] * $data['quantity'];
+                        $totalharga += $subharga;
+                    ?>
+                    <tr>
+                        <td><?= $no++; ?></td>
+                        <td><?= $data['nama'] ?></td>
+                        <td>Rp <?= number_format($data['harga'],0,',','.') ?></td>
+                        <td><?= $data['quantity'] ?></td>
+                        <td>Rp <?= number_format($subharga,0,',','.') ?></td>
+                        <td>
+                            <a class="btn btn-sm btn-success" href="updatecart.php?action=add&id=<?= $data['produk_id'] ?>"><i class="fa fa-plus"></i></a>
+                            <a class="btn btn-sm btn-warning" href="updatecart.php?action=minus&id=<?= $data['produk_id'] ?>"><i class="fa fa-minus"></i></a>
+                            <a class="btn btn-sm btn-danger" href="updatecart.php?action=delete&id=<?= $data['produk_id'] ?>"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div class="text-end">
+                <h5>Total Harga: Rp <?= number_format($totalharga,0,',','.') ?></h5>
+            </div>
+
+            <!-- Data Pembeli -->
+            <hr>
+            <h5 class="mt-4">Data Pembeli</h5>
+            <form method="post">
+                <div class="row">
+                    <?php $dataUser = mysqli_fetch_array($queryListUser); ?>
+                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['username'] ?>"></div>
+                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['email'] ?>"></div>
+                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['address'].', '.$dataUser['city'] ?>"></div>
+                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['contact'] ?>"></div>
+                </div>
+                <div class="mt-4">
+                    <label>Metode Pembayaran</label>
+                    <select name="pembayaran" class="form-control" required>
                         <?php
-                        if (!isset($_SESSION['log'])) {
-                            echo '
-					<li><a href="register.php" class="btn btn-light mx-2"> Register</a></li>
-					<li><a href="login.php" class="btn btn-light">Login</a></li>
-					';
+                        $metodeQ = mysqli_query($conn, "SELECT * FROM pembayaran WHERE user_id='$user_id'");
+                        if (mysqli_num_rows($metodeQ) > 0) {
+                            while ($m = mysqli_fetch_assoc($metodeQ)) {
+                                echo '<option value="'.$m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'">'.
+                                     $m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'</option>';
+                            }
                         } else {
-
-                            if ($_SESSION['role'] == 'member') {
-                                echo '
-					<li><a href="logout.php" class="btn btn-light mb-1">Logout</a></li>
-					';
-                            } else {
-                                echo '
-                    <li><a href="admin" class="btn btn-light mb-1 mx-3">Admin</a></li>
-					<li><a href="logout.php" class="btn btn-light mb-1">Logout</a></li>
-					';
-                            };
+                            echo '<option value="COD">Bayar di Tempat</option>';
                         }
                         ?>
-                    </ul>
+                    </select>
                 </div>
-            </div>
-        </nav>
-    </section>
-
-    <div class="container-fluid py-5 mt-5">
-        <div class="container mb-3">
-            <a href="belanja.php" class="btn btn-primary"><i class="fa-solid fa-chevron-left mx-2"></i>Kembali</a>
-        </div>
-        <div class="container">
-            <div class="card p-5">
-                <h5 class="border p-3 text-center">Keranjang Belanja</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">No.</th>
-                            <th scope="col">Nama Produk</th>
-                            <th scope="col">Harga</th>
-                            <th scope="col">Jumlah</th>
-                            <th scope="col">Sub Total Harga</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $no = 1;
-                        $totalharga = 0 ?>
-                        <?php foreach ($_SESSION['cart'] as $id => $jumlah): ?>
-                            <?php
-                            if (!empty($id)) {
-                                $queryListProduk = $conn->query("SELECT * from produk where id=$id");
-
-                                $data = $queryListProduk->fetch_assoc();
-
-                                if (!empty($jumlah)) {
-                                    $subharga = $data['harga'] * $jumlah;
-                                    $totalharga = $totalharga + $subharga;
-                                }
-                            ?>
-                                <tr>
-                                    <td><?php echo $no; ?></td>
-                                    <td><?php echo $data['nama'] ?></td>
-                                    <td><?php echo 'Rp.', number_format($data['harga'], 0, ',', '.') ?></td>
-                                    <td><?php echo $jumlah ?></td>
-                                    <td><?php echo 'Rp.', number_format($subharga, 0, ',', '.') ?></td>
-                                    <td>
-                                        <a class="btn btn-primary" href="addcart.php?p=<?php echo $data['id'] ?>"><i class="fa fa-plus"></i></a>
-                                        <a class="btn btn-primary" href="mincart.php?p=<?php echo $data['id'] ?>"><i class="fa fa-minus"></i></a>
-                                    </td>
-                                </tr>
-
-                            <?php $no++;
-                            }
-                            ?>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-                <tfoot>
-                    <h6>Total Harga : <span class="harga"><?php echo 'Rp.', number_format($totalharga, 0, ',', '.') ?></span></h6>
-
-                </tfoot>
-
-                <div class="mt-5">
-                    <h6>Data Pembeli</h6>
-                    <form action="" method="post">
-                        <div class="row">
-                            <?php $dataUser = mysqli_fetch_array($queryListUser) ?>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="text" readonly class="form-control text-center" value="<?php echo $dataUser['username'] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="text" readonly class="form-control text-center" value="<?php echo $dataUser['email'] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="text" readonly class="form-control text-center" value="<?php echo $dataUser['address'] ?>, <?php echo $dataUser['city'] ?> ">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="text" readonly class="form-control text-center" value="<?php echo $dataUser['contact'] ?>">
-                                </div>
-                            </div>
-                            <div class="col-md">
-                                <div class="form-group text-center mt-5">
-                                    Metode Pembayaran
-                                    <select name="pembayaran" id="pembayaran">
-                                        <option value="Transfer">Transfer - a/n Muhammad Reyhan No. Rekening 123412987</option>
-                                        <option value="COD">Bayar Di Tempat</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-                        <button class="container btn btn-primary px-3 py-2 mt-3 " name="checkout">Checkout</button>
-                    </form>
-
-                </div>
-
-            </div>
-
-
+                <button type="submit" name="checkout" class="btn btn-primary w-100 mt-3">Checkout</button>
+            </form>
         </div>
     </div>
+
     <?php
+    // Proses Checkout
     if (isset($_POST['checkout'])) {
-        $id_pengguna = $_SESSION['id'];
-        $tanggal = date("d-m-Y");
+        $tanggal = date("Y-m-d");
         $pembayaran = htmlspecialchars($_POST['pembayaran']);
-        $totalhargapesanan = $totalharga + 0.05 * $totalharga; //admin 5%
-        $conn->query("INSERT INTO pesanan (id_pengguna, tanggal, total, pembayaran) VALUES ('$id_pengguna', '$tanggal', '$totalhargapesanan', '$pembayaran')");
+        $totalhargapesanan = $totalharga + 0.05 * $totalharga; // admin fee 5%
 
-        $id_pembelianbaru = $conn->insert_id;
+        $conn->query("INSERT INTO pesanan (id_pengguna, tanggal, total, pembayaran) 
+                      VALUES ('$user_id', '$tanggal', '$totalhargapesanan', '$pembayaran')");
 
-        foreach ($_SESSION['cart'] as $id_produk => $jumlah) {
-            if ($id_produk != 0) {
-                $conn->query("INSERT INTO produk_pesanan (id_pesanan, id_produk, jumlah) VALUES ('$id_pembelianbaru', '$id_produk', '$jumlah')");
-                echo "<script>alert('Pembelian Sukses, Dimohon untuk cek email untuk informasi update status pesanan.')</script>";
-                echo "<script>location='unduhbukti.php?id=$id_pembelianbaru'</script>";
-            }
+        $id_pesanan = $conn->insert_id;
+
+        $cartItems = mysqli_query($conn, "SELECT * FROM cart WHERE user_id='$user_id'");
+        while ($item = mysqli_fetch_assoc($cartItems)) {
+            $conn->query("INSERT INTO produk_pesanan (id_pesanan, id_produk, jumlah) 
+                          VALUES ('$id_pesanan', '".$item['product_id']."', '".$item['quantity']."')");
         }
+
+        // Hapus cart setelah checkout
+        mysqli_query($conn, "DELETE FROM cart WHERE user_id='$user_id'");
+
+        echo "<script>alert('Pembelian Sukses, silakan cek email untuk update status.')</script>";
+        echo "<script>location='unduhbukti.php?id=$id_pesanan'</script>";
     }
     ?>
 
-
-
-
-
-
-
-
-
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

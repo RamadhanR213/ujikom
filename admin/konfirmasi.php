@@ -38,53 +38,26 @@ $queryListPesanan = mysqli_query($conn, "SELECT * FROM pesanan JOIN pendaftar ON
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
-        <!-- Sidebar -->
-        <ul
-            class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
-            id="accordionSidebar">
-            <!-- Sidebar - Brand -->
-            <a
-                class="sidebar-brand d-flex align-items-center justify-content-center"
-                href="index.php">
-                <div class="sidebar-brand-text mx-1">Dashboard Admin</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0" />
-
-
-            <li class="nav-item">
-                <a class="nav-link" href="index.php">
-                    <span>Beranda</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider" />
-
-            <!-- Heading -->
-            <div class="sidebar-heading">Menu</div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="produk.php">
-                    <span>Produk</span>
-                </a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="konfirmasi.php">
-                    <span>Konfirmasi Pesanan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="../index.php">
-                    <span>Kembali ke toko</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block" />
-        </ul>
-        <!-- End of Sidebar -->
+       <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
+        <div class="sidebar-brand-text mx-1">Dashboard Admin</div>
+      </a>
+      <hr class="sidebar-divider my-0" />
+      
+      <!-- Menu -->
+      <li class="nav-item">
+        <a class="nav-link" href="index.php"><span>Beranda</span></a>
+      </li>
+      <hr class="sidebar-divider" />
+      <div class="sidebar-heading">Menu</div>
+      <li class="nav-item"><a class="nav-link" href="customer.php"><span>Customer</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="produk.php"><span>Produk</span></a></li>
+      <li class="nav-item active"><a class="nav-link" href="konfirmasi.php"><span>Konfirmasi Pesanan</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="../index.php"><span>Kembali ke toko</span></a></li>
+      <hr class="sidebar-divider d-none d-md-block" />
+    </ul>
+    <!-- End Sidebar -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">

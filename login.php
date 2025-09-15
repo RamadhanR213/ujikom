@@ -1,102 +1,127 @@
 <?php
 session_start();
-if (isset($_SESSION['log'])) {
-    header('location:index.php');
-    exit();
-}
-
 include 'koneksi.php';
 
-if (isset($_POST['login'])) {
-    $username = $_POST["username"];
-    $password = $_POST["password"]; // Tidak perlu hash password di sini
+if(isset($_POST['login'])){
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    $loginuser = mysqli_query($conn, "SELECT * FROM pendaftar WHERE username = '$username'");
-    $searchuser = mysqli_fetch_assoc($loginuser);
+    $cekdb = mysqli_query($conn,"SELECT * FROM pendaftar WHERE username='$username'");
+    $row = mysqli_fetch_assoc($cekdb);
 
-    if ($searchuser && password_verify($password, $searchuser["password"])) {
-        $_SESSION["id"] = $searchuser["id"];
-        $_SESSION["username"] = $searchuser["username"];
-        $_SESSION["role"] = $searchuser["role"];
-        $_SESSION["log"] = "Logged";
+    if($row && password_verify($password, $row['password'])){
+        // simpan session login
+        $_SESSION['log'] = true;
+        $_SESSION['id'] = $row['id'];            // id user
+        $_SESSION['username'] = $row['username']; // username
+        $_SESSION['role'] = $row['role'];         // role user
 
-        echo " <div class='alert alert-success text-center' style='position:;'>
-			Berhasil login, selamat datang!.
-		  </div>
-		<meta http-equiv='refresh' content='1; url= index.php'/>  ";
+        // redirect ke dashboard atau index
+        header('location:index.php');
+        exit;
     } else {
-      echo " <div class='alert alert-warning text-center' style='position:'>
-			Data salah, silakan login dengan data yang benar!.
-		  </div>
-		<meta http-equiv='refresh' content='1; url= login.php'/>  ";
+        echo "<div class='alert alert-danger' style='position: fixed; z-index: 1000'>
+                Username atau Password salah!
+              </div>
+              <meta http-equiv='refresh' content='1; url= login.php'/> ";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.css"/>
-    <link rel="stylesheet" href="assets/style.css"/>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"/>
-    <title>Login Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - MedShop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      background: linear-gradient(135deg,#71b7e6,#9b59b6);
+    }
+    .wrapper{
+      position:relative;
+      width:350px;
+      background:#fff;
+      border-radius:20px;
+      padding:40px;
+      box-shadow:0 15px 25px rgba(0,0,0,0.1);
+      overflow:hidden;
+      animation: show 0.5s ease;
+    }
+    @keyframes show {
+      from { transform: translateY(40px); opacity:0; }
+      to { transform: translateY(0); opacity:1; }
+    }
+    .wrapper h2{
+      text-align:center;
+      margin-bottom:20px;
+      color:#333;
+    }
+    .input-box{
+      position:relative;
+      width:100%;
+      margin-bottom:20px;
+    }
+    .input-box input{
+      width:100%;
+      padding:12px 15px;
+      background:#f0f0f0;
+      border:none;
+      outline:none;
+      border-radius:10px;
+      font-size:14px;
+    }
+    .btn{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#9b59b6;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    .btn:hover{
+      background:#8e44ad;
+    }
+    .link{
+      text-align:center;
+      margin-top:15px;
+      font-size:14px;
+    }
+    .link a{
+      color:#9b59b6;
+      text-decoration:none;
+      font-weight:600;
+    }
+  </style>
 </head>
 <body>
-<section id=navbar>
-      <div>
-      <nav class="navbar navbar-expand-lg bg-primary"  data-bs-theme="dark">
-        <div class="container-fluid">
-          <img
-            src="assets/image/icon-healthier.png"
-            alt="Logo"
-            style="width: 50px; height: 50px; margin: 10px"
-            class="d-inline-block align-text-top"
-          />
-          <a class="navbar-brand mx-2" href="index.php
-          ">Health Shop</a>
-          <div
-            class="collapse navbar-collapse justify-content-end mr-3"
-            id="navbarNav"
-          >
-          </div>
-        </div>
-      </nav>
+  <div class="wrapper">
+    <h2>Login</h2>
+    <form action="login.php" method="POST">
+      <div class="input-box">
+        <input type="text" name="username" placeholder="Username" required>
       </div>
-</section>
-<section id="form">
-  <div class="d-flex justify-content-center align-items-center" style="height: 90vh;">
-        <div class="card container text-center shadow-lg" style="max-width: 600px;">
-        <div class="pt-4">
-          <img src="assets/image/icon-healthier.png" alt="Logo" style="width: 50px; height: 50px">
-          <h5>Selamat datang di Health Shopr</h5>
+      <div class="input-box">
+        <input type="password" name="password" placeholder="Password" required>
       </div>
-      <div>
-          <form action="login.php" method="POST">
-              <div>
-                  Username :
-                  <input class="box-input" type="text" name="username" required/>
-              </div>
-              <div>
-                  Password :
-                  <input class="box-input" type="password" name="password" required/>
-              </div>
-              <div style="margin-top: 15px">
-                  <a style="display: flex; justify-content: center">
-                      <button style="margin-right: 10px" type="submit" name="login" class="btn btn-primary">
-                          Submit
-                      </button>
-                  </a>
-              </div>
-          </form>
-        
+      <button type="submit" name="login" class="btn">Login</button>
+      <div class="link">
+        Belum punya akun? <a href="register.php">Register</a>
       </div>
-      <p class="mt-2 pb-4">Belum memiliki akun? <a href="register.php">Register</a></p>
+    </form>
   </div>
-</section>
-
-<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

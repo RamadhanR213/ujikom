@@ -53,15 +53,6 @@
     text-shadow: black 1px 1px;
     font-family: sans-serif ;
 }
-.jumbotron-bg {
-    background-image: url("../assets/image/doctor.jpg");
-    height: 600px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5);
-}
 
 .harga{
     font-size: 13pt;
@@ -82,5 +73,31 @@
 
 .card-body{
     background-color: rgb(237, 247, 250);
+}
+
+.card-outlet {
+  height: 400px; /* Tetapkan tinggi tetap untuk card */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  overflow: hidden; /* Hindari konten meluap */
+}
+
+.card-outlet img {
+  height: 200px; /* Tetapkan tinggi tetap untuk gambar */
+  width: 100%; /* Pastikan gambar memenuhi lebar card */
+  object-fit: cover; /* Pastikan gambar tidak terdistorsi */
+  object-position: center; /* Pusatkan gambar */
+  border-radius: 5px; /* Tambahkan radius untuk estetika */
+}
+
+.card-outlet .card-body {
+  flex-grow: 1; /* Isi ruang yang tersisa di card */
+  padding: 15px; /* Tambahkan padding untuk konten */
+  background-color: rgb(237, 247, 250); /* Warna latar belakang */
+  width: 100%; /* Pastikan konten memenuhi lebar card */
+  box-sizing: border-box; /* Sertakan padding dalam ukuran elemen */
 }
 

@@ -11,72 +11,55 @@ session_start();
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
+<style>
+   .navbar {
+      background: linear-gradient(90deg, #0d6efd, #084298);
+    }
+    .navbar-brand, .nav-link, .btn {
+      font-weight: 500;
+    }
+  </style>
 <body>
-  <section id="navbar">
-    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-      <div class="container-fluid">
-        <img
-          src="assets/image/icon-healthier.png"
-          alt="Logo"
-          style="width: 50px; height: 50px; margin: 10px"
-          class="d-inline-block align-text-top" />
-        <a class="navbar-brand mx-2" href="index.php">MedShop</a>
-        
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div
-          class="collapse navbar-collapse justify-content-end mr-3"
-          id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link"  href="index.php">Beranda</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="belanja.php">Belanja</a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link" href="cart.php?p=0">Keranjang</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="kontak.php">Kontak Kami</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav mx-4">
-            <?php
-            if (!isset($_SESSION['log'])) {
+ <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <img src="assets/image/profile.jpg" alt="Logo" style="width: 50px; height: 50px;" class="d-inline-block align-text-top" />
+      <a class="navbar-brand mx-2" href="index.php">MedShop</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="index.php">Beranda</a></li>
+          <li class="nav-item"><a class="nav-link" href="belanja.php">Belanja</a></li>
+          <li class="nav-item"><a class="nav-link" href="cart.php?p=0">Keranjang</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#">Kontak Kami</a></li>
+        </ul>
+        <ul class="navbar-nav mx-4">
+          <?php
+          if (!isset($_SESSION['log'])) {
+            echo '
+              <li><a href="register.php" class="btn btn-light mx-2">Register</a></li>
+              <li><a href="login.php" class="btn btn-outline-light">Login</a></li>
+            ';
+          } else {
+            if ($_SESSION['role'] == 'member') {
               echo '
-                    <li><a href="register.php" class="btn btn-light mx-2"> Register</a></li>
-                    <li><a href="login.php" class="btn btn-light">Login</a></li>
-                    ';
+                <li><a href="account.php" class="btn btn-light mx-2">Account</a></li>
+                <li><a href="logout.php" class="btn btn-outline-light">Logout</a></li>
+              ';
             } else {
-
-              if ($_SESSION['role'] == 'member') {
-                echo '
-          <li><a href="account.php" class="btn btn-light mx-2">Account</a></li>
-                    <li><a href="logout.php" class="btn btn-light mb-1">Logout</a></li>
-                    ';
-              } else {
-                echo '
-                    <li><a href="admin" class="btn btn-light mb-1 mx-3">Admin</a></li>
-                    <li><a href="logout.php" class="btn btn-light mb-1">Logout</a></li>
-                    ';
-              };
+              echo '
+                <li><a href="admin" class="btn btn-light mx-3">Admin</a></li>
+                <li><a href="logout.php" class="btn btn-outline-light">Logout</a></li>
+              ';
             }
-          
-            ?>
-          </ul>
-        </div>
+          }
+          ?>
+        </ul>
       </div>
-    </nav>
-  </section>
+    </div>
+  </nav>
 
 <section id="kontak" class="container mt-5">
   <h2 class="text-center mb-4">Kontak Kami</h2>

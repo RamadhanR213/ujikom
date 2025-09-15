@@ -8,7 +8,7 @@
           alt="Logo"
           style="width: 50px; height: 50px; margin: 3px"
           class="" />
-        <h5 class="text-uppercase justify-content-center">Health Shop</h5>
+        <h5 class="text-uppercase justify-content-center">MedShop</h5>
       </div>
 
       <!-- Kolom kedua -->
@@ -16,13 +16,13 @@
         <h5 class="text-uppercase">Kontak Kami</h5>
         <ul class="list-unstyled mb-0 ">
           <li>
-            <i class="fa-solid fa-envelope"></i>admin@healthshop.com
+            <i class="fa-solid fa-envelope"></i>admin@medhshop.com
           </li>
           <li>
-            <i class="fa-solid fa-phone"></i> +62 812 4027 7417
+            <i class="fa-solid fa-phone"></i> +62 851 5757 5444
           </li>
           <li>
-            <i class="fa-solid fa-location-dot"></i> Jl. Sehat No. 123, Surabaya
+            <i class="fa-solid fa-location-dot"></i> Jl. Kedung Baruk Selatan No.223, Kota Surabaya
           </li>
         </ul>
       </div>
@@ -57,6 +57,6 @@
   </div>
 
   <div class="text-center p-3 bg-dark">
-    &copy; 2025 Reyhanfisena | All rights reserved
+    &copy; 2025 Raihanramadhan | All rights reserved
   </div>
 </footer>
