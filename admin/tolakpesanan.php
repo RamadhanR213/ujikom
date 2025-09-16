@@ -2,22 +2,15 @@
 session_start();
 include '../koneksi.php';
 
-
 if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+    $id_pesanan = intval($_GET['id']);
 
-    // Query untuk menghapus produk
-    $updatestatus = mysqli_query($conn, "UPDATE pesanan set status='Ditolak' WHERE id_pesanan = $id");
+    // update status pesanan
+    $update = mysqli_query($conn, "UPDATE pesanan SET status_pesanan='Ditolak' WHERE id_pesanan='$id_pesanan'");
 
-    // Cek apakah query berhasil
-    if ($updatestatus) {
-        echo "<script>alert('Pesanan berhasil diupdate!'); window.location.href='konfirmasi.php';</script>";
+    if ($update) {
+        echo "<script>alert('Pesanan ditolak.');window.location='konfirmasi.php';</script>";
     } else {
-        echo "<script>alert('Gagal update pesanan.'); window.location.href='konfirmasi.php';</script>";
+        echo "<script>alert('Gagal update status pesanan.');window.location='konfirmasi.php';</script>";
     }
-} else {
-    echo "<script>alert('ID pesanan tidak ditemukan.'); window.location.href='konfirmasi.php';</script>";
 }
-?>
-
-

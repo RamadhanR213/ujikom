@@ -2,7 +2,7 @@
 session_start();
 include 'koneksi.php';
 
-// Cek apakah user sudah login
+// Cek login
 if (!isset($_SESSION['log'])) {
     header('Location: login.php');
     exit;
@@ -14,27 +14,68 @@ $user_id = $_SESSION['id'];
 if (!empty($_GET['p'])) {
     $product_id = intval($_GET['p']);
     if ($product_id > 0) {
-        // Cek apakah produk sudah ada di cart user
         $cekCart = mysqli_query($conn, "SELECT * FROM cart WHERE user_id='$user_id' AND product_id='$product_id'");
         if (mysqli_num_rows($cekCart) > 0) {
-            // Jika ada → update quantity
             mysqli_query($conn, "UPDATE cart SET quantity = quantity + 1 WHERE user_id='$user_id' AND product_id='$product_id'");
         } else {
-            // Jika belum ada → insert baru
             mysqli_query($conn, "INSERT INTO cart (user_id, product_id, quantity) VALUES ('$user_id','$product_id',1)");
         }
     }
 }
 
 // Ambil data user
-$queryListUser = mysqli_query($conn, "SELECT * from pendaftar where id='$user_id'");
+$queryListUser = mysqli_query($conn, "SELECT * FROM pendaftar WHERE id='$user_id'");
 
-// Ambil keranjang user dari DB
+// Ambil keranjang
 $queryCart = mysqli_query($conn, "SELECT c.id, c.quantity, p.nama, p.harga, p.id as produk_id
                                   FROM cart c
                                   JOIN produk p ON c.product_id = p.id
                                   WHERE c.user_id='$user_id'");
 
+// Proses Checkout
+if (isset($_POST['checkout'])) {
+    if (mysqli_num_rows($queryCart) == 0) {
+        echo "<script>alert('Keranjang kosong, tidak bisa checkout!');</script>";
+    } else {
+        $tanggal = date("Y-m-d");
+        $pembayaran = htmlspecialchars($_POST['pembayaran']);
+        $totalharga = 0;
+
+        // hitung total
+        $cartItems = mysqli_query($conn, "SELECT c.*, p.harga FROM cart c JOIN produk p ON c.product_id=p.id WHERE c.user_id='$user_id'");
+        while ($item = mysqli_fetch_assoc($cartItems)) {
+            $totalharga += $item['harga'] * $item['quantity'];
+        }
+        $totalhargapesanan = $totalharga + 0.05 * $totalharga; // admin fee 5%
+
+        // simpan pesanan (default status = Menunggu Konfirmasi)
+        $conn->query("INSERT INTO pesanan (id_pengguna, tanggal, total, pembayaran, status_pesanan) 
+                      VALUES ('$user_id', '$tanggal', '$totalhargapesanan', '$pembayaran', 'Menunggu Konfirmasi')");
+
+        $id_pesanan = $conn->insert_id;
+
+        // simpan detail produk
+        $cartItems = mysqli_query($conn, "SELECT * FROM cart WHERE user_id='$user_id'");
+        while ($item = mysqli_fetch_assoc($cartItems)) {
+            $conn->query("INSERT INTO produk_pesanan (id_pesanan, id_produk, jumlah) 
+                          VALUES ('$id_pesanan', '".$item['product_id']."', '".$item['quantity']."')");
+        }
+
+        // hapus cart
+        mysqli_query($conn, "DELETE FROM cart WHERE user_id='$user_id'");
+
+        echo "<script>alert('Pembelian Sukses, silakan cek riwayat pesanan.')</script>";
+    }
+}
+
+// User konfirmasi pesanan diterima -> status Selesai
+if (isset($_GET['terima'])) {
+    $id_pesanan = intval($_GET['terima']);
+    mysqli_query($conn, "UPDATE pesanan SET status_pesanan='Selesai' 
+                         WHERE id_pesanan='$id_pesanan' AND id_pengguna='$user_id'");
+    header("Location: cart.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +95,7 @@ $queryCart = mysqli_query($conn, "SELECT c.id, c.quantity, p.nama, p.harga, p.id
     .navbar-brand, .nav-link, .btn {
       font-weight: 500;
     }
-  </style>
+</style>
 <body>
    <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark">
@@ -97,105 +138,135 @@ $queryCart = mysqli_query($conn, "SELECT c.id, c.quantity, p.nama, p.harga, p.id
     </div>
   </nav>
 
-    <div class="container py-5">
-        <div class="card shadow p-4">
-            <h4 class="text-center mb-4">Keranjang Belanja</h4>
-            <table class="table table-bordered align-middle text-center">
-                <thead class="table-primary">
-                    <tr>
-                        <th>No.</th>
-                        <th>Nama Produk</th>
-                        <th>Harga</th>
-                        <th>Jumlah</th>
-                        <th>Sub Total</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $no = 1; 
-                    $totalharga = 0;
+  <div class="container py-5">
+    <!-- Keranjang -->
+    <div class="card shadow p-4">
+        <h4 class="text-center mb-4">Keranjang Belanja</h4>
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>No.</th>
+                    <th>Nama Produk</th>
+                    <th>Harga</th>
+                    <th>Jumlah</th>
+                    <th>Sub Total</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+                $no = 1; 
+                $totalharga = 0;
+                if (mysqli_num_rows($queryCart) == 0) {
+                    echo "<tr><td colspan='6' class='text-center'>Keranjang kosong</td></tr>";
+                } else {
                     while ($data = mysqli_fetch_assoc($queryCart)) {
                         $subharga = $data['harga'] * $data['quantity'];
                         $totalharga += $subharga;
-                    ?>
-                    <tr>
-                        <td><?= $no++; ?></td>
-                        <td><?= $data['nama'] ?></td>
-                        <td>Rp <?= number_format($data['harga'],0,',','.') ?></td>
-                        <td><?= $data['quantity'] ?></td>
-                        <td>Rp <?= number_format($subharga,0,',','.') ?></td>
-                        <td>
-                            <a class="btn btn-sm btn-success" href="updatecart.php?action=add&id=<?= $data['produk_id'] ?>"><i class="fa fa-plus"></i></a>
-                            <a class="btn btn-sm btn-warning" href="updatecart.php?action=minus&id=<?= $data['produk_id'] ?>"><i class="fa fa-minus"></i></a>
-                            <a class="btn btn-sm btn-danger" href="updatecart.php?action=delete&id=<?= $data['produk_id'] ?>"><i class="fa fa-trash"></i></a>
-                        </td>
-                    </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-            <div class="text-end">
-                <h5>Total Harga: Rp <?= number_format($totalharga,0,',','.') ?></h5>
-            </div>
-
-            <!-- Data Pembeli -->
-            <hr>
-            <h5 class="mt-4">Data Pembeli</h5>
-            <form method="post">
-                <div class="row">
-                    <?php $dataUser = mysqli_fetch_array($queryListUser); ?>
-                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['username'] ?>"></div>
-                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['email'] ?>"></div>
-                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['address'].', '.$dataUser['city'] ?>"></div>
-                    <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['contact'] ?>"></div>
-                </div>
-                <div class="mt-4">
-                    <label>Metode Pembayaran</label>
-                    <select name="pembayaran" class="form-control" required>
-                        <?php
-                        $metodeQ = mysqli_query($conn, "SELECT * FROM pembayaran WHERE user_id='$user_id'");
-                        if (mysqli_num_rows($metodeQ) > 0) {
-                            while ($m = mysqli_fetch_assoc($metodeQ)) {
-                                echo '<option value="'.$m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'">'.
-                                     $m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'</option>';
-                            }
-                        } else {
-                            echo '<option value="COD">Bayar di Tempat</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-                <button type="submit" name="checkout" class="btn btn-primary w-100 mt-3">Checkout</button>
-            </form>
+                ?>
+                <tr>
+                    <td><?= $no++; ?></td>
+                    <td><?= $data['nama'] ?></td>
+                    <td>Rp <?= number_format($data['harga'],0,',','.') ?></td>
+                    <td><?= $data['quantity'] ?></td>
+                    <td>Rp <?= number_format($subharga,0,',','.') ?></td>
+                    <td>
+                        <a class="btn btn-sm btn-success" href="updatecart.php?action=add&id=<?= $data['produk_id'] ?>"><i class="fa fa-plus"></i></a>
+                        <a class="btn btn-sm btn-warning" href="updatecart.php?action=minus&id=<?= $data['produk_id'] ?>"><i class="fa fa-minus"></i></a>
+                        <a class="btn btn-sm btn-danger" href="updatecart.php?action=delete&id=<?= $data['produk_id'] ?>"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+                <?php } } ?>
+            </tbody>
+        </table>
+        <div class="text-end">
+            <h5>Total Harga: Rp <?= number_format($totalharga,0,',','.') ?></h5>
         </div>
+
+        <!-- Data Pembeli -->
+<hr>
+<h5 class="mt-4">Data Pembeli</h5>
+<form method="post">
+    <div class="row">
+        <?php $dataUser = mysqli_fetch_array($queryListUser); ?>
+        <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['username'] ?>"></div>
+        <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['email'] ?>"></div>
+        <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['address'].', '.$dataUser['city'] ?>"></div>
+        <div class="col-md-3"><input type="text" readonly class="form-control" value="<?= $dataUser['contact'] ?>"></div>
     </div>
+    <div class="mt-4">
+        <label>Metode Pembayaran</label>
+        <select name="pembayaran" class="form-control" required>
+            <?php
+            $metodeQ = mysqli_query($conn, "SELECT * FROM pembayaran WHERE user_id='$user_id'");
+            if (mysqli_num_rows($metodeQ) > 0) {
+                while ($m = mysqli_fetch_assoc($metodeQ)) {
+                    echo '<option value="'.$m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'">'.
+                         $m['metode'].' - '.$m['nomor'].' - a/n '.$m['atas_nama'].'</option>';
+                }
+            } else {
+                echo '<option value="COD">Bayar di Tempat</option>';
+            }
+            ?>
+        </select>
+    </div>
+    <button type="submit" name="checkout" 
+            class="btn btn-primary w-100 mt-3" 
+            <?= ($totalharga == 0 ? 'disabled' : '') ?>>
+        Checkout
+    </button>
+</form>
 
-    <?php
-    // Proses Checkout
-    if (isset($_POST['checkout'])) {
-        $tanggal = date("Y-m-d");
-        $pembayaran = htmlspecialchars($_POST['pembayaran']);
-        $totalhargapesanan = $totalharga + 0.05 * $totalharga; // admin fee 5%
+    <!-- Riwayat Pesanan -->
+    <div class="card shadow p-4 mt-5">
+        <h4 class="text-center mb-4">Riwayat Pesanan</h4>
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-secondary">
+                <tr>
+                    <th>No.</th>
+                    <th>ID Pesanan</th>
+                    <th>Tanggal</th>
+                    <th>Total</th>
+                    <th>Pembayaran</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $riwayatQ = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pengguna='$user_id' ORDER BY id_pesanan DESC");
+                if (mysqli_num_rows($riwayatQ) == 0) {
+                    echo "<tr><td colspan='7' class='text-center'>Belum ada pesanan</td></tr>";
+                } else {
+                    $no=1;
+                    while ($r = mysqli_fetch_assoc($riwayatQ)) {
+                        echo "<tr>
+                                <td>{$no}</td>
+                                <td>{$r['id_pesanan']}</td>
+                                <td>{$r['tanggal']}</td>
+                                <td>Rp ".number_format($r['total'],0,',','.')."</td>
+                                <td>{$r['pembayaran']}</td>
+                                <td><span class='badge bg-".
+                                    ($r['status_pesanan']=='Menunggu Konfirmasi'?'secondary':
+                                    ($r['status_pesanan']=='Sedang diproses'?'warning':
+                                    ($r['status_pesanan']=='Ditolak'?'danger':
+                                    ($r['status_pesanan']=='Dikirim'?'info':
+                                    ($r['status_pesanan']=='Selesai'?'success':'dark'))))).
+                                "'>{$r['status_pesanan']}</span></td>
+                                <td>";
+                        if ($r['status_pesanan']=='Dikirim') {
+                            echo "<a href='cart.php?terima={$r['id_pesanan']}' class='btn btn-success btn-sm'>Pesanan Diterima</a>";
+                        }
+                        echo "</td></tr>";
+                        $no++;
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+  </div>
 
-        $conn->query("INSERT INTO pesanan (id_pengguna, tanggal, total, pembayaran) 
-                      VALUES ('$user_id', '$tanggal', '$totalhargapesanan', '$pembayaran')");
-
-        $id_pesanan = $conn->insert_id;
-
-        $cartItems = mysqli_query($conn, "SELECT * FROM cart WHERE user_id='$user_id'");
-        while ($item = mysqli_fetch_assoc($cartItems)) {
-            $conn->query("INSERT INTO produk_pesanan (id_pesanan, id_produk, jumlah) 
-                          VALUES ('$id_pesanan', '".$item['product_id']."', '".$item['quantity']."')");
-        }
-
-        // Hapus cart setelah checkout
-        mysqli_query($conn, "DELETE FROM cart WHERE user_id='$user_id'");
-
-        echo "<script>alert('Pembelian Sukses, silakan cek email untuk update status.')</script>";
-        echo "<script>location='unduhbukti.php?id=$id_pesanan'</script>";
-    }
-    ?>
-
-    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
