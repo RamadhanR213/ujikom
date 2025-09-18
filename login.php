@@ -2,32 +2,32 @@
 session_start();
 include 'koneksi.php';
 
-if(isset($_POST['login'])){
+if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
 
-    $cekdb = mysqli_query($conn,"SELECT * FROM pendaftar WHERE username='$username' LIMIT 1");
+    $cekdb = mysqli_query($conn, "SELECT * FROM pendaftar WHERE username='$username' LIMIT 1");
     $row = mysqli_fetch_assoc($cekdb);
 
-    if($row && password_verify($password, $row['password'])){
+    if ($row && password_verify($password, $row['password'])) {
         // simpan session login
         $_SESSION['log'] = true;
-        $_SESSION['id'] = $row['id'];             // id user
-        $_SESSION['username'] = $row['username']; // username
-        $_SESSION['role'] = $row['role'];         // role user (misalnya: admin / user)
+        $_SESSION['id'] = $row['id'];               // id user
+        $_SESSION['username'] = $row['username'];   // username
+        $_SESSION['role'] = $row['role'];           // role user (admin / member)
 
         // redirect sesuai role
-        if($row['role'] === 'admin'){
+        if ($row['role'] === 'admin') {
             header('Location: admin/index.php');
         } else {
             header('Location: index.php');
         }
         exit;
     } else {
-        echo "<div class='alert alert-danger' style='position: fixed; z-index: 1000'>
+        echo "<div class='alert alert-danger' style='position: fixed; z-index: 1000; width:100%; text-align:center;'>
                 Username atau Password salah!
               </div>
-              <meta http-equiv='refresh' content='1; url= login.php'/> ";
+              <meta http-equiv='refresh' content='1; url=login.php'/> ";
     }
 }
 ?>

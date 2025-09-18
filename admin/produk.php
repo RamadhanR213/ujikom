@@ -2,6 +2,11 @@
 session_start();
 include '../koneksi.php';
 
+if (!isset($_SESSION['log']) || !isset($_SESSION['username'])) {
+    header('Location: ../login.php'); // redirect ke login
+    exit;
+}
+
 // Query produk + kategori
 $query = mysqli_query($conn, "SELECT a.*, b.nama_kategori AS nama_kategori FROM produk a JOIN kategori b ON a.id_kategori=b.id_kategori");
 $jumlahproduk = mysqli_num_rows($query);
