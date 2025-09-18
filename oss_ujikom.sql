@@ -340,3 +340,19 @@ INSERT INTO `outlet` (`nama_outlet`, `alamat`, `gambar`) VALUES
 ('Jombang', 'Jl. Wahid Hasyim No. 89', 'jombang.jpg'),
 ('Mojokerto', 'Jl. Mojopahit No. 101', 'mojokerto.jpg'),
 ('Gresik', 'Jl. Veteran No. 12', 'gresik.jpg');
+
+/*Table: pembayaran*/
+---------------------
+
+CREATE TABLE `pembayaran` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `metode` varchar(50) NOT NULL,
+  `nomor` varchar(100) NOT NULL,
+  `atas_nama` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `pembayaran_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pendaftar` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+

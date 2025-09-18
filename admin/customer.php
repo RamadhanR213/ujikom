@@ -40,7 +40,6 @@ $jumlahcustomer = mysqli_num_rows($query);
       <li class="nav-item active"><a class="nav-link" href="customer.php"><span>Customer</span></a></li>
       <li class="nav-item"><a class="nav-link" href="produk.php"><span>Produk</span></a></li>
       <li class="nav-item"><a class="nav-link" href="konfirmasi.php"><span>Konfirmasi Pesanan</span></a></li>
-      <li class="nav-item"><a class="nav-link" href="../index.php"><span>Kembali ke toko</span></a></li>
       <hr class="sidebar-divider d-none d-md-block" />
     </ul>
     <!-- End Sidebar -->
@@ -67,7 +66,7 @@ $jumlahcustomer = mysqli_num_rows($query);
         <div class="container-fluid">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Daftar Customer</h1>
-            <a href="index.php" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+            <!-- <a href="index.php" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a> -->
           </div>
 
           <!-- Tabel Customer -->

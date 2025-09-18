@@ -3,21 +3,25 @@ session_start();
 include 'koneksi.php';
 
 if(isset($_POST['login'])){
-    $username = $_POST['username'];
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
 
-    $cekdb = mysqli_query($conn,"SELECT * FROM pendaftar WHERE username='$username'");
+    $cekdb = mysqli_query($conn,"SELECT * FROM pendaftar WHERE username='$username' LIMIT 1");
     $row = mysqli_fetch_assoc($cekdb);
 
     if($row && password_verify($password, $row['password'])){
         // simpan session login
         $_SESSION['log'] = true;
-        $_SESSION['id'] = $row['id'];            // id user
+        $_SESSION['id'] = $row['id'];             // id user
         $_SESSION['username'] = $row['username']; // username
-        $_SESSION['role'] = $row['role'];         // role user
+        $_SESSION['role'] = $row['role'];         // role user (misalnya: admin / user)
 
-        // redirect ke dashboard atau index
-        header('location:index.php');
+        // redirect sesuai role
+        if($row['role'] === 'admin'){
+            header('Location: admin/index.php');
+        } else {
+            header('Location: index.php');
+        }
         exit;
     } else {
         echo "<div class='alert alert-danger' style='position: fixed; z-index: 1000'>
@@ -57,15 +61,22 @@ if(isset($_POST['login'])){
       box-shadow:0 15px 25px rgba(0,0,0,0.1);
       overflow:hidden;
       animation: show 0.5s ease;
+      text-align:center;
     }
     @keyframes show {
       from { transform: translateY(40px); opacity:0; }
       to { transform: translateY(0); opacity:1; }
     }
     .wrapper h2{
-      text-align:center;
-      margin-bottom:20px;
+      margin:15px 0;
       color:#333;
+    }
+    .wrapper img{
+      width:80px;
+      height:80px;
+      object-fit:cover;
+      border-radius:50%;
+      margin-bottom:10px;
     }
     .input-box{
       position:relative;
@@ -109,6 +120,9 @@ if(isset($_POST['login'])){
 </head>
 <body>
   <div class="wrapper">
+    <!-- Logo -->
+    <img src="assets/image/profile.jpg" alt="Logo">
+
     <h2>Login</h2>
     <form action="login.php" method="POST">
       <div class="input-box">

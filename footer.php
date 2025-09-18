@@ -4,7 +4,7 @@
       <!-- Kolom pertama -->
       <div class="col-lg-4 col-md-6 mb-4 mb-md-0 text-center">
         <img
-          src="assets/image/icon-healthier.png"
+          src="assets/image/profile.jpg"
           alt="Logo"
           style="width: 50px; height: 50px; margin: 3px"
           class="" />

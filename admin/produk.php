@@ -110,7 +110,7 @@ if (isset($_POST['addproduk'])) {
       <li class="nav-item"><a class="nav-link" href="customer.php"><span>Customer</span></a></li>
       <li class="nav-item active"><a class="nav-link" href="produk.php"><span>Produk</span></a></li>
       <li class="nav-item"><a class="nav-link" href="konfirmasi.php"><span>Konfirmasi Pesanan</span></a></li>
-      <li class="nav-item"><a class="nav-link" href="../index.php"><span>Kembali ke toko</span></a></li>
+      <!-- <li class="nav-item"><a class="nav-link" href="../index.php"><span>Kembali ke toko</span></a></li> -->
       <hr class="sidebar-divider d-none d-md-block" />
     </ul>
     <!-- End Sidebar -->

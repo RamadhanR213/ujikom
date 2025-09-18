@@ -8,7 +8,7 @@ if(!isset($_SESSION['log'])){
 include 'koneksi.php';
 
 if(isset($_POST['adduser']))
-	{
+{
     $username = $_POST["username"];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
     $email = $_POST["email"];
@@ -18,21 +18,33 @@ if(isset($_POST['adduser']))
     $city = $_POST["city"];
     $contact = $_POST["contact"];
     $paypal = $_POST["paypal"];
-			  
-		$tambahuser = mysqli_query($conn,"INSERT INTO pendaftar (username, password, email, dateofbirth, gender, address, city, contact, paypal)
- VALUES ('$username', '$password','$email', '$dateofbirth', '$gender', '$address', '$city', '$contact', '$paypal')");
-		if ($tambahuser){
-		echo " <div class='alert alert-success' style='position: fixed; z-index: 1000'>
-			Berhasil mendaftar, silakan masuk.
-		  </div>
-		<meta http-equiv='refresh' content='1; url= login.php'/>  ";
-		} else { echo "<div class='alert alert-warning' style='position: fixed; z-index: 1000' >
-			Gagal mendaftar, silakan coba lagi.
-		  </div>
-		 <meta http-equiv='refresh' content='1; url= register.php'/> ";
-		}
-		
-	};
+
+    // 🔎 Cek apakah email sudah ada
+    $cek_email = mysqli_query($conn, "SELECT * FROM pendaftar WHERE email='$email'");
+    if(mysqli_num_rows($cek_email) > 0){
+        echo "<div class='alert alert-danger' style='position: fixed; z-index: 1000'>
+            Email sudah terdaftar, silakan gunakan email lain.
+          </div>
+          <meta http-equiv='refresh' content='2; url= register.php'/> ";
+    } else {
+        // Jika email belum ada -> insert data
+        $tambahuser = mysqli_query($conn,"INSERT INTO pendaftar (username, password, email, dateofbirth, gender, address, city, contact, paypal)
+        VALUES ('$username', '$password','$email', '$dateofbirth', '$gender', '$address', '$city', '$contact', '$paypal')");
+        
+        if ($tambahuser){
+            echo " <div class='alert alert-success' style='position: fixed; z-index: 1000'>
+                Berhasil mendaftar, silakan masuk.
+              </div>
+            <meta http-equiv='refresh' content='1; url= login.php'/>  ";
+        } else {
+            echo "<div class='alert alert-warning' style='position: fixed; z-index: 1000' >
+                Gagal mendaftar, silakan coba lagi.
+              </div>
+             <meta http-equiv='refresh' content='1; url= register.php'/> ";
+        }
+    }
+};
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,15 +77,22 @@ if(isset($_POST['adduser']))
       box-shadow:0 15px 25px rgba(0,0,0,0.1);
       overflow:hidden;
       animation: show 0.5s ease;
+      text-align:center;
     }
     @keyframes show {
       from { transform: translateY(40px); opacity:0; }
       to { transform: translateY(0); opacity:1; }
     }
     .wrapper h2{
-      text-align:center;
-      margin-bottom:20px;
+      margin:15px 0;
       color:#333;
+    }
+    .wrapper img{
+      width:80px;
+      height:80px;
+      object-fit:cover;
+      border-radius:50%;
+      margin-bottom:10px;
     }
     .input-box{
       position:relative;
@@ -136,6 +155,9 @@ if(isset($_POST['adduser']))
 </head>
 <body>
   <div class="wrapper">
+    <!-- Logo -->
+    <img src="assets/image/profile.jpg" alt="Logo">
+
     <h2>Register</h2>
     <form action="register.php" method="POST" onsubmit="return validateForm()">
       <div class="input-box">
