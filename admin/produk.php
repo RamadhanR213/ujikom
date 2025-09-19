@@ -59,28 +59,28 @@ if (isset($_POST['addproduk'])) {
     $stok       = htmlspecialchars($_POST['stok']);
     $detail     = htmlspecialchars($_POST['detail']);
 
-    // Proses upload gambar
-    $foto = null;
-    if (!empty($_FILES['foto']['name'])) {
-        $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-        $foto = time() . '_' . rand(1000,9999) . '.' . $ext; // nama unik
-        $upload = move_uploaded_file($_FILES['foto']['tmp_name'], "../assets/image/" . $foto);
+// Proses upload gambar
+$foto = null;
+if (!empty($_FILES['foto']['name'])) {
+    $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+    $foto = time() . '_' . rand(1000,9999) . '.' . $ext; // nama unik
+    $upload = move_uploaded_file($_FILES['foto']['tmp_name'], "../assets/image/" . $foto);
 
-        if (!$upload) {
-            echo "<div class='alert alert-danger'>Upload gambar gagal</div>";
-            $foto = null;
-        }
+    if (!$upload) {
+        echo "<div class='alert alert-danger'>Upload gambar gagal</div>";
+        $foto = null;
     }
+}
 
-    // Insert ke database
-    $insert = mysqli_query($conn, "INSERT INTO produk (nama, harga, id_kategori, foto, stok, detail) 
-                                   VALUES ('$nama', '$harga', '$kategori', '$foto', '$stok', '$detail')");
+// Insert ke database
+$insert = mysqli_query($conn, "INSERT INTO produk (nama, harga, id_kategori, foto, stok, detail) 
+                               VALUES ('$nama', '$harga', '$kategori', '$foto', '$stok', '$detail')");
 
-    if ($insert) {
-        echo "<div class='alert alert-success'>Produk berhasil ditambahkan</div>";
-        echo "<meta http-equiv='refresh' content='1; url=produk.php'>";
-    } else {
-        echo "<div class='alert alert-danger'>Gagal menambahkan produk</div>";
+if ($insert) {
+    echo "<div class='alert alert-success'>Produk berhasil ditambahkan</div>";
+    echo "<meta http-equiv='refresh' content='1; url=produk.php'>";
+} else {
+    echo "<div class='alert alert-danger'>Gagal menambahkan produk</div>";
     }
 }
 
@@ -117,9 +117,8 @@ if (isset($_POST['addproduk'])) {
       <li class="nav-item"><a class="nav-link" href="konfirmasi.php"><span>Konfirmasi Pesanan</span></a></li>
       <!-- <li class="nav-item"><a class="nav-link" href="../index.php"><span>Kembali ke toko</span></a></li> -->
       <hr class="sidebar-divider d-none d-md-block" />
-    </ul>
-    <!-- End Sidebar -->
-        <!-- End of Sidebar -->
+        </ul>
+      <!-- End Sidebar -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -139,58 +138,57 @@ if (isset($_POST['addproduk'])) {
                     </ul>
                 </nav>
 
-               <!-- Kategori Produk -->
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h5 class="m-0 font-weight-bold text-primary">Kategori Produk</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" class="mb-3">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <input type="text" name="nama_kategori" class="form-control" placeholder="Nama Kategori" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <button type="submit" name="addkategori" class="btn btn-primary">Tambah Kategori</button>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Kategori</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $no = 1;
-                                    $resultKategori = mysqli_query($conn, "SELECT * FROM kategori");
-                                    if (mysqli_num_rows($resultKategori) == 0) {
-                                        echo "<tr><td colspan='3' class='text-center'>Belum ada kategori</td></tr>";
-                                    } else {
-                                        while ($row = mysqli_fetch_assoc($resultKategori)) {
-                                            echo "<tr>
-                                                <td>$no</td>
-                                                <td>{$row['nama_kategori']}</td>
-                                                <td>
-                                                    <a href='produk.php?delete_kategori={$row['id_kategori']}' onclick=\"return confirm('Yakin hapus kategori ini?')\" class='btn btn-danger btn-sm'>
-                                                        <i class='fa fa-trash'></i>
-                                                    </a>
-                                                </td>
-                                            </tr>";
-                                            $no++;
-                                        }
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+        <!-- Kategori Produk -->
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="m-0 font-weight-bold text-primary">Kategori Produk</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" name="nama_kategori" class="form-control" placeholder="Nama Kategori" required>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" name="addkategori" class="btn btn-primary">Tambah Kategori</button>
                         </div>
                     </div>
+                </form>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Kategori</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $no = 1;
+                            $resultKategori = mysqli_query($conn, "SELECT * FROM kategori");
+                            if (mysqli_num_rows($resultKategori) == 0) {
+                                echo "<tr><td colspan='3' class='text-center'>Belum ada kategori</td></tr>";
+                            } else {
+                                while ($row = mysqli_fetch_assoc($resultKategori)) {
+                                    echo "<tr>
+                                        <td>$no</td>
+                                        <td>{$row['nama_kategori']}</td>
+                                        <td>
+                                            <a href='produk.php?delete_kategori={$row['id_kategori']}' onclick=\"return confirm('Yakin hapus kategori ini?')\" class='btn btn-danger btn-sm'>
+                                                <i class='fa fa-trash'></i>
+                                            </a>
+                                        </td>
+                                    </tr>";
+                                    $no++;
+                                }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
                 </div>
-
+            </div>
+        </div>
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
